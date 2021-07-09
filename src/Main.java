@@ -1,3 +1,4 @@
+import javafx.scene.shape.Rectangle;
 import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -11,28 +12,36 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
+import javafx.animation.AnimationTimer;
+import javafx.event.EventHandler;
 
-public class Pong extends Application {
-    
-    private static final int width = 1000;
+public class Main extends Application {
+
+    // Constants
+    private static final int width =  1000;
     private static final int height = 1000;
-    private static final int PLAYER_HEIGHT = 100;
-    private static final int PLAYER_WIDTH = 15;
     private static final double BALL_RADIUS = 15;
+
+    private int PLAYER_WIDTH = 15;
+    private int PLAYER_HEIGHT = 100;
+
     private int ballYSpeed = 1;
     private int ballXSpeed = 1;
-    private double playerOneYPos = (height / 2) - PLAYER_HEIGHT;
-    private double playerTwoYPos = (height / 2) - PLAYER_HEIGHT;
     private double ballXPos = width  / 2;
     private double ballYPos = height / 2;
-    private int scorePlayer1 = 0;
-    private int scorePlayer2 = 0;
-    private boolean gameStarted;
-    private int playerOneXPos = 15;
-    private double playerTwoXPos = width - PLAYER_WIDTH;
+
+    private double playerOneXPos = 15; 
+    private double playerOneYPos = height / 2;
+    private double playerTwoXPos = width - (PLAYER_WIDTH + 15);
+    private double playerTwoYPos = height / 2; 
+
+    private boolean gameStarted = false;
 
     public void start(Stage stage) throws Exception {
+
         Image icon = new Image("pong_logo.jpeg");
         stage.setTitle("PONG");
         stage.getIcons().add(icon);
@@ -44,42 +53,64 @@ public class Pong extends Application {
         Timeline tl = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
         tl.setCycleCount(Timeline.INDEFINITE);
 
+        canvas.setFocusTraversable(true);
+        canvas.setOnKeyPressed(e -> {
+            keyPressed(e);
+        });
+
         stage.setScene(new Scene(new StackPane(canvas)));
         stage.show();
         tl.play();
     }
 
     private void run(GraphicsContext gc) {
-        // set graphics
-        // set background color
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, width, height);
 
-        // set text
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Faster One", 70));
+        gc.setFont(Font.font("Aerologica", 42));
 
         if (gameStarted) {
             // set ball movement
             ballXPos += ballXSpeed;
             ballYPos += ballYSpeed;
-            
-            //ai();
-            if (ballXPos < width - width / 4) {
-                playerTwoYPos = ballYPos - PLAYER_HEIGHT / 2;
-            } else {
-                playerTwoYPos = ballYPos > playerTwoYPos + PLAYER_HEIGHT / 2
-                    ?playerTwoYPos += 1:playerTwoYPos - 1;
-            }
-
-            //draw ball
             gc.fillOval(ballXPos, ballYPos, BALL_RADIUS, BALL_RADIUS);
 
         } else {
-            // set start text
+
             gc.setStroke(Color.WHITE);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.strokeText("Press Space\n To Start!", width / 2, height / 2);
+            gc.strokeText("PRESS SPACE\n TO START!", width / 2, height / 2);
+
+            ballXPos = width  / 2;
+            ballYPos = height / 2;
+            ballXSpeed = new Random().nextInt(2) == 0 ? 1: -1;
+            ballYSpeed = new Random().nextInt(2) == 0 ? 1: -1;
+        }
+
+        gc.fillRect(playerTwoXPos, playerTwoYPos, PLAYER_WIDTH, PLAYER_HEIGHT);
+        gc.fillRect(playerOneXPos, playerOneYPos, PLAYER_WIDTH, PLAYER_HEIGHT);
+    }
+
+    public void keyPressed (KeyEvent e) {
+        if (e.getCode() == KeyCode.SPACE) {
+            gameStarted = true;
+        }
+
+        if (e.getCode() == KeyCode.W) {
+            playerOneYPos += -50;
+        }
+
+        if (e.getCode() == KeyCode.S) {
+            playerOneYPos += 50;
+        }
+
+        if (e.getCode() == KeyCode.UP) {
+            playerTwoYPos += -50;
+        }
+
+        if (e.getCode() == KeyCode.DOWN) {
+            playerTwoYPos += 50;
         }
     }
 
@@ -87,44 +118,6 @@ public class Pong extends Application {
         launch(args);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
